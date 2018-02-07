@@ -85,7 +85,7 @@ contract Token is Owned {
         totalSupply = totalSupply.mul(10**18);
     }
 
-    function _transfer(address _from, address _to, uint _value) internal {
+    function _transfer(address _from, address _to, uint _value) internal onlyPayloadSize(3) {
         require(_to != 0x0);
         require(balanceOf[_from] >= _value);
         require(balanceOf[_to] + _value > balanceOf[_to]);
