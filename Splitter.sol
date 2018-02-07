@@ -2,23 +2,23 @@ pragma solidity ^0.4.19;
 
 
 library SafeMath {
-    function mul(uint256 a, uint256 b) internal constant returns (uint256) {
+    function mul(uint256 a, uint256 b) internal constant returns (uint256) { //no constant PURE is better CasperUpdate
         uint256 c = a * b;
         assert(a == 0 || c / a == b);
         return c;
     }
 
-    function div(uint256 a, uint256 b) internal constant returns (uint256) {
+    function div(uint256 a, uint256 b) internal constant returns (uint256) { //no constant PURE is better CasperUpdate
         uint256 c = a / b;
         return c;
     }
 
-    function sub(uint256 a, uint256 b) internal constant returns (uint256) {
+    function sub(uint256 a, uint256 b) internal constant returns (uint256) { //no constant PURE is better CasperUpdate
         assert(b <= a);
         return a - b;
     }
 
-    function add(uint256 a, uint256 b) internal constant returns (uint256) {
+    function add(uint256 a, uint256 b) internal constant returns (uint256) { //no constant PURE is better CasperUpdate
         uint256 c = a + b;
         assert(c >= a);
         return c;
@@ -27,9 +27,10 @@ library SafeMath {
 
 
 contract Splitter {
+    
+    using SafeMath for uint256;    
         
     address owner;
-    address alice;
     address bob;
     address carol;
 
@@ -37,10 +38,14 @@ contract Splitter {
         require(msg.sender == owner);
         _;
     }
+
+    modifier onlyPayloadSize(uint numwords) {
+        assert(msg.data.length == numwords * 32 + 4);
+        _;
+    }
         
-    function Splitter(address _alice, address _bob, address _carol) public {
+    function Splitter(address _bob, address _carol) public {
         owner = msg.sender;
-        alice = _alice;
         bob = _bob;
         carol = _carol;
     } 
@@ -49,28 +54,30 @@ contract Splitter {
         splitBalance();
     }
         
-    function splitBalance() public {
-        if (msg.sender == alice) {
-            uint256 _value = msg.value;
-            uint256 _splittedValue = SafeMath.div(_value, 2);
+    function splitBalance() public { 
+        require(msg.sender == owner);   //require msg.sender == alice or modifire only owner the, first better
+        uint256 _value = msg.value;
+        uint256 _splittedValue = SafeMath.div(_value, 2);
 
-            bob.transfer(_splittedValue);
-            balanceOf[bob] = _splittedValue;
+        bob.transfer(_splittedValue);
+        balanceOf[bob] = balanceOf[bob].add(_splittedValue); //must use add everytime cuz you must know how much coins you have 
 
-            carol.transfer(_splittedValue);
-            balanceOf[carol] = _splittedValue;
-        }
+        carol.transfer(_splittedValue);
+        balanceOf[carol] = balanceOf[carol].add(_splittedValue); //must use add everytime cuz you must know how much coins you have
     }
-        
-    function withdraw (uint amount) public onlyOwner returns(bool) {
-        require(amount <= this.balance);
-        owner.transfer(amount);
+
+    function _withdraw(address _to, uint256 _amount) internal onlyPayloadSize(2) {
+        require(_amount <= this.balance);
+        _to.transfer(_amount);
+    }
+
+    function withdraw (uint _amount) public onlyOwner returns(bool) {
+        _withdraw(owner, _amount);
         return true;
     }
         
-    function withdrawToAddress(address _receiver, uint amount) public onlyOwner returns(bool){
-        require(amount <= this.balance);
-        _receiver.transfer(amount);
+    function withdrawToAddress(address _receiver, uint _amount) public onlyOwner returns(bool) {
+        _withdraw(_receiver, _amount);
         return true;
     }
 
