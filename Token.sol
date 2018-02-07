@@ -58,10 +58,10 @@ contract Token is Owned {
     
     using SafeMath for uint256;
 
-    string name;
-    string symbol;
-    uint256 totalSupply;
-    uint8 decimals;
+    string public name;
+    string public symbol;
+    uint256 public totalSupply;
+    uint8 public decimals;
 
     address public minter;
 
@@ -77,18 +77,20 @@ contract Token is Owned {
     event Burn(address indexed from, uint256 value);
     event Mint(address indexed from, uint256 value);
     
-    function Token() {
+    function Token() public {
         name = "MyToken";
         symbol = "MTK";
         decimals = 18;
         totalSupply = 100000;
-        totalSupply = totalSupply.mul(10**18);
+        totalSupply = totalSupply.mul(10**decimals);
+
+        balanceOf[msg.sender] = totalSupply;
     }
 
     function _transfer(address _from, address _to, uint _value) internal onlyPayloadSize(3) {
         require(_to != 0x0);
         require(balanceOf[_from] >= _value);
-        require(balanceOf[_to] + _value > balanceOf[_to]);
+        require(balanceOf[_to] + _value >= balanceOf[_to]);
         uint previousBalances = balanceOf[_from] + balanceOf[_to];
         balanceOf[_from] -= _value;
         balanceOf[_to] += _value;
