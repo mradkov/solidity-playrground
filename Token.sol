@@ -61,7 +61,7 @@ contract Token is Owned {
     string public name;
     string public symbol;
     uint256 public totalSupply;
-    uint8 public decimals;
+    uint256 public decimals;
 
     address public minter;
 
@@ -83,7 +83,6 @@ contract Token is Owned {
         decimals = 18;
         totalSupply = 100000;
         totalSupply = totalSupply.mul(10**decimals);
-
         balanceOf[msg.sender] = totalSupply;
     }
 
@@ -91,7 +90,7 @@ contract Token is Owned {
         require(_to != 0x0);
         require(balanceOf[_from] >= _value);
         require(balanceOf[_to] + _value >= balanceOf[_to]);
-        uint previousBalances = balanceOf[_from] + balanceOf[_to];
+        uint256 previousBalances = balanceOf[_from] + balanceOf[_to];
         balanceOf[_from] -= _value;
         balanceOf[_to] += _value;
         Transfer(_from, _to, _value);
