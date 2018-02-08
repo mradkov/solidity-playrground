@@ -2,41 +2,52 @@ pragma solidity ^0.4.19;
 
 contract SimpleMath {
     
-    uint256 public a = 0;
-    
-    function add(uint256 b) public {
-        uint256 c = a + b;
-        assert(c >= a);
-        a = c;
+    int public state = 0;
+
+    function numberOneState() public returns (int) {
+        return state;
     }
     
-    function substract(uint256 b) public {
-        assert(b <= a);
-        a -= b;
+    function numberReset() public returns (int) {
+        state = 0;
+        return state;
     }
     
-    function multiply(uint256 b) public {
-        uint256 c = a * b;
-        assert(a == 0 || c / a == b);
-        a = c;
+    function add(int b) public returns (int) {
+        state += b;
+        return state;
+    }
+    
+    function substract(int b) public returns (int) {
+        assert(b <= state);
+        state -= b;
+        return state;
+    }
+    
+    function multiply(int b) public returns (int) {
+        state *= b;
+        return state;
     }
         
-    function divide(uint256 b) public {
-        uint256 c = a / b;
-        a = c;
+    function divide(int b) public returns (int) {
+        state /= b;
+        return state;
     }
             
-    function pow(uint256 b) public {
-        uint256 result = a ** b;
-        a = result;
+    function pow(uint b) public returns (int) {
+        if (state >= 0) {
+            state = int(uint(state) ** b);
+        } else {
+            state = int(uint(-state) ** b);
+        }
+
+        return state;
     }
-    
-    function numberOneState() public returns (uint256) {
-        return a;
+
+    function mod(int b) public returns (int) {
+        state = state % b;
+        return state;
     }
-    
-    function numberReset() public {
-        a = 0;
-    }
+
 
 }
