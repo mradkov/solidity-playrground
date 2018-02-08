@@ -12,7 +12,6 @@ contract SimpleMath {
         assert(b <= a);
         return a - b;
     }
-    
         
     function multiply(int256 a, int256 b) public returns (int256) {
         int256 c = a * b;
